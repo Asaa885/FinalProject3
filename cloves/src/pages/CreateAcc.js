@@ -33,7 +33,7 @@ const CreateAccount = () => {
     }
 
     try {
-      const response = await axios.post(`${apiBaseUrl}customUser/`, {
+      const response = await axios.post(`${apiBaseUrl}customUser/me/`, {
         username: form.username.trim(),
         password: form.password.trim(),
         email: form.email.trim(),

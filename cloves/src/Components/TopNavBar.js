@@ -1,14 +1,30 @@
-// src/components/TopNavBar.js
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 const TopNavBar = () => {
-  const navItems = [
-    { name: 'Home', path: '/main/home'},
-    { name: 'Clove Purchase', path: '/main/purchase' },
-    { name: 'Board Management', path: '/main/board' },
+  const userRole = localStorage.getItem("role")?.toLowerCase(); 
+  console.log("User role is:", userRole); 
+
+  const adminNavItems = [
     { name: 'Admin Dashboard', path: '/main/admndash' },
-    { name: 'Admin page', path: '/main/admnpg'},
+    { name: 'Board Management', path: '/main/board' },
+    
+    // { name: 'Admin page', path: '/main/admnpg' },
+  ];
+
+  const officerNavItems = [
+    { name: 'Home', path: '/main/home' },
+    { name: 'Clove Purchase', path: '/main/purchase' },
+    { name: 'PaymentPage', path: '/main/payment' },
+  ];
+
+  const sharedNavItems = [
+    
+  ];
+
+  const navItemsToRender = [
+    ...(userRole === 'admin' ? adminNavItems : officerNavItems),
+    ...sharedNavItems,
   ];
 
   return (
@@ -16,7 +32,7 @@ const TopNavBar = () => {
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">ZCFRMS System</h2>
         <ul className="flex space-x-8">
-          {navItems.map((item) => (
+          {navItemsToRender.map((item) => (
             <li key={item.name}>
               <NavLink
                 to={item.path}

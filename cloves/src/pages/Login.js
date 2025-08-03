@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import img005 from './../assets/karafuu5.jpg';
-import { Link, useNavigate } from 'react-router-dom';
 
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+const apiBaseUrl = process.env.REACT_APP_API_BASE_URL?.endsWith('/')
+  ? process.env.REACT_APP_API_BASE_URL
+  : process.env.REACT_APP_API_BASE_URL + '/';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -11,49 +13,51 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError('');
+ const handleSubmit = async (event) => {
+  event.preventDefault();
+  setError('');
 
-    try {
-      const response = await axios.post(`${apiBaseUrl}customUser/`, {
-        username,
-        password,
-      });
+  try {
+    const response = await axios.post(`${apiBaseUrl}customUser/me/`, {
+      username,
+      password,
+    });
 
-      const { access, refresh, role } = response.data;
+    const { access, refresh, role } = response.data;
 
-      // Optional: Decode JWT to check expiration (security measure)
-      const payload = JSON.parse(atob(access.split('.')[1]));
-      const isExpired = payload.exp * 1000 < Date.now();
-      if (isExpired) {
-        setError('Token expired. Please login again.');
-        return;
-      }
+    // Decode JWT token to check expiry and extract user ID
+    const payload = JSON.parse(atob(access.split('.')[1]));
+    const isExpired = payload.exp * 1000 < Date.now();
 
-      // Save to localStorage
-      localStorage.setItem('accessToken', access);
-      localStorage.setItem('refreshToken', refresh);
-      localStorage.setItem('role', role);
-      localStorage.setItem('username', username);
-
-      console.log('Login successful', response.data);
-
-      // Redirect based on role
-      if (role === 'admin') {
-        navigate('/main/admndash');
-      } else if (role === 'renter' || role === 'clove_farmer') {
-        navigate('/main/home');
-      } else {
-        setError('Unauthorized role');
-        localStorage.clear();
-      }
-
-    } catch (err) {
-      console.error('Login error', err);
-      setError('Invalid username or password');
+    if (isExpired) {
+      setError('Token expired. Please login again.');
+      return;
     }
-  };
+
+    // ✅ Save to localStorage
+    localStorage.setItem('accessToken', access);
+    localStorage.setItem('refreshToken', refresh);
+    localStorage.setItem('role', role);
+    localStorage.setItem('username', username);
+    localStorage.setItem('userId', payload.user_id); // ✅ Add this line
+
+    console.log('Login successful', response.data);
+
+    // Redirect based on role
+    if (role === 'admin') {
+      navigate('/main/admndash');
+    } else if (['officer'].includes(role)) {
+      navigate('/main/home');
+    } else {
+      setError('Unauthorized role');
+      localStorage.clear();
+    }
+
+  } catch (err) {
+    console.error('Login error', err);
+    setError('Invalid username or password');
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -1,37 +1,59 @@
-import React, { useState } from "react";
+import React from "react";
+import { Routes, Route, Link } from "react-router-dom";
 import ModelManagement from "../Components/ModelManagement";
 
-const models = [
-  "renter",
-  "clove_farmer",
-  "clove_firm",
-  "cloves",
-  "payment",
-  "purchase",
-  "board",
-  "officer",
-];
-
-const AdminPg = () => {
-  const [selectedModel, setSelectedModel] = useState("renter");
+function AdminPanel() {
+  const models = [
+    "Farmer",
+    "Renter",
+    "CloveFirm",
+    "Cloves",
+    "Payment",
+    "Purchase",
+    "Board",
+    "Officer",
+    "FirmCloveFarm",
+  ];
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
-      <div className="flex gap-2 flex-wrap mb-6">
-        {models.map((model) => (
-          <button
-            key={model}
-            onClick={() => setSelectedModel(model)}
-            className="bg-blue-500 text-white px-3 py-2 rounded"
-          >
-            {model.replace("_", " ")}
-          </button>
-        ))}
+    <div className="min-h-screen flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-800 text-white p-4">
+        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
+        <ul>
+          {models.map((model) => (
+            <li key={model} className="mb-2">
+              <Link
+                to={`/admin/${model}`}
+                className="hover:underline hover:text-blue-300"
+              >
+                Manage {model}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ModelManagement model={selectedModel} />
+
+      {/* Main content */}
+      <div className="flex-1 p-4">
+        <Routes>
+          <Route
+            path="/admin/:model"
+            element={<ModelManagement />}
+          />
+          <Route
+            path="/admin"
+            element={
+              <div>
+                <h1 className="text-2xl font-bold">Welcome to Admin Panel</h1>
+                <p>Select a model from the sidebar to manage.</p>
+              </div>
+            }
+          />
+        </Routes>
+      </div>
     </div>
   );
-};
+}
 
-export default AdminPg;
+export default AdminPanel;

@@ -7,6 +7,7 @@ const ClovePurchase = () => {
   const [sellerType, setSellerType] = useState('');
   const [sellers, setSellers] = useState([]);
   const [selectedSellerId, setSelectedSellerId] = useState('');
+  const [selectedSellerName, setSelectedSellerName] = useState('');
   const [grade, setGrade] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
@@ -52,6 +53,7 @@ const ClovePurchase = () => {
       await axios.post(`${apiBaseUrl}purchase/`, {
         seller_type: sellerType,
         seller_id: selectedSellerId,
+        seller_name: selectedSellerName,
         grade,
         quantity,
         unit_price: unitPrice,
@@ -63,6 +65,7 @@ const ClovePurchase = () => {
       setQuantity('');
       setUnitPrice('');
       setSelectedSellerId('');
+      setSelectedSellerName('');
       setSellerType('');
     } catch (err) {
       console.error('Transaction error:', err.response?.data || err.message);
@@ -87,23 +90,39 @@ const ClovePurchase = () => {
         </select>
       </div>
 
-      {sellerType && (
-        <div className="mb-4">
-          <label className="block mb-1 text-sm">Chagua Muuzaji</label>
-          <select
-            className="w-full border p-2 rounded"
-            value={selectedSellerId}
-            onChange={(e) => setSelectedSellerId(e.target.value)}
-          >
-            <option value="">-- Chagua --</option>
-            {sellers.map((seller) => (
-              <option key={seller.id} value={seller.id}>
-                {seller.user?.first_name} {seller.user?.last_name} ({seller.id})
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+            {sellerType && (
+          <div>
+            <label className="block mb-1 font-medium">Chagua Muuzaji</label>
+            <select
+              className="w-full border p-2 rounded"
+              value={selectedSellerId}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                setSelectedSellerId(selectedId);
+                const selected = sellers.find(
+                  (s) => String(s.id) === String(selectedId)
+                );
+                if (selected) {
+                  if (sellerType === 'renter') {
+                    setSelectedSellerName(selected.seller_name);
+                  } else {
+                    setSelectedSellerName(selected.faName);
+                  }
+                } else {
+                  setSelectedSellerName('');
+                }
+              }}
+            >
+              <option value="">-- Chagua --</option>
+              {sellers.map((seller) => (
+                <option key={seller.id} value={seller.id}>
+                  {sellerType === 'renter' ? seller.seller_name : seller.faName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
 
       <div className="mb-4">
         <label className="block mb-1 text-sm">Grade ya Karafuu</label>

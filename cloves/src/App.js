@@ -13,6 +13,7 @@ import AdminPg from './pages/AdminPg.js'
 import AdminDashboard from './pages/AdminDashboard';
 import BoardManagement from './Components/ModelManagement';
 import ClovePurchase from './pages/ClovePurchase';
+import PaymentPage from './pages/PaymentPage.js';
 
 const App = () => {
   return (
@@ -22,15 +23,15 @@ const App = () => {
         <Route path='/' element={<Login />} />
         <Route path='createAcc' element={<CreateAcc />} />
 
-        {/* Protected Routes for Admin */}
+        {/* Protected Routes  */}
         <Route path='main' element={
-          <PrivateRoute allowedRoles={['admin', 'renter', 'clove_farmer']}>
+          <PrivateRoute allowedRoles={['admin', 'officer']}>
             <MainLayout />
           </PrivateRoute>
         }>
           {/* Sub-routes inside layout */}
           <Route path='home' element={
-            <PrivateRoute allowedRoles={['renter', 'clove_farmer']}>
+            <PrivateRoute allowedRoles={['officer']}>
               <Home />
             </PrivateRoute>
           } />
@@ -54,10 +55,18 @@ const App = () => {
           } />
 
           <Route path='purchase' element={
-            <PrivateRoute allowedRoles={['renter']}>
+            <PrivateRoute allowedRoles={['officer']}>
               <ClovePurchase />
             </PrivateRoute>
           } />
+
+          <Route path='payment' element={
+            <PrivateRoute allowedRoles={['officer']}>
+            <PaymentPage/>
+            </PrivateRoute>          
+          }/>
+
+         
         </Route>
       </Routes>
     </Router>

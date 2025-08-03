@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-8">
       <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-6 text-center">
-        Welcome Renter To ZCFRM System
+        Welcome Officer To ZCFRM System
       </h1>
 
       <div className="flex flex-col md:flex-row gap-4 w-full justify-center items-center">
