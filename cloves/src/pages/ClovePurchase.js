@@ -20,17 +20,35 @@ const ClovePurchase = () => {
 
   useEffect(() => {
     if (sellerType && sellerEndpoints[sellerType]) {
-      fetchSellers(sellerEndpoints[sellerType]);
+      fetchSellers(sellerEndpoints[sellerType], sellerType);
     } else {
       setSellers([]);
       setSelectedSellerId('');
+      setSelectedSellerName('');
     }
   }, [sellerType]);
 
-  const fetchSellers = async (endpoint) => {
+  // Fetch sellers and normalize data to unified format {id, name}
+  const fetchSellers = async (endpoint, type) => {
     try {
       const res = await axios.get(`${apiBaseUrl}${endpoint}`);
-      setSellers(res.data);
+      // Normalize sellers for frontend use
+      const normalized = res.data.map((seller) => {
+        if (type === 'renter') {
+          return {
+            id: seller.id,
+            name: seller.seller_name || '',  // renter's seller_name field
+          };
+        } else if (type === 'farmer') {
+          return {
+            id: seller.id,
+            name: seller.faName || '',       // farmer's faName field
+          };
+        } else {
+          return { id: seller.id, name: '' };
+        }
+      });
+      setSellers(normalized);
     } catch (err) {
       console.error('Error fetching sellers:', err);
       setSellers([]);
@@ -52,8 +70,7 @@ const ClovePurchase = () => {
     try {
       await axios.post(`${apiBaseUrl}purchase/`, {
         seller_type: sellerType,
-        seller_id: selectedSellerId,
-        seller_name: selectedSellerName,
+        seller: selectedSellerId,       // Backend expects 'seller' (user ID)
         grade,
         quantity,
         unit_price: unitPrice,
@@ -90,39 +107,28 @@ const ClovePurchase = () => {
         </select>
       </div>
 
-            {sellerType && (
-          <div>
-            <label className="block mb-1 font-medium">Chagua Muuzaji</label>
-            <select
-              className="w-full border p-2 rounded"
-              value={selectedSellerId}
-              onChange={(e) => {
-                const selectedId = e.target.value;
-                setSelectedSellerId(selectedId);
-                const selected = sellers.find(
-                  (s) => String(s.id) === String(selectedId)
-                );
-                if (selected) {
-                  if (sellerType === 'renter') {
-                    setSelectedSellerName(selected.seller_name);
-                  } else {
-                    setSelectedSellerName(selected.faName);
-                  }
-                } else {
-                  setSelectedSellerName('');
-                }
-              }}
-            >
-              <option value="">-- Chagua --</option>
-              {sellers.map((seller) => (
-                <option key={seller.id} value={seller.id}>
-                  {sellerType === 'renter' ? seller.seller_name : seller.faName}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
+      {sellerType && (
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Chagua Muuzaji</label>
+          <select
+            className="w-full border p-2 rounded"
+            value={selectedSellerId}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setSelectedSellerId(selectedId);
+              const selected = sellers.find((s) => String(s.id) === String(selectedId));
+              setSelectedSellerName(selected ? selected.name : '');
+            }}
+          >
+            <option value="">-- Chagua --</option>
+            {sellers.map((seller) => (
+              <option key={seller.id} value={seller.id}>
+                {seller.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="mb-4">
         <label className="block mb-1 text-sm">Grade ya Karafuu</label>

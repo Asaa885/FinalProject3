@@ -14,6 +14,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import BoardManagement from './Components/ModelManagement';
 import ClovePurchase from './pages/ClovePurchase';
 import PaymentPage from './pages/PaymentPage.js';
+import OfficerReportPage from './pages/OfficerReportPage.js'; // Import the new page
+import LogOut from './pages/LogOut';
 
 const App = () => {
   return (
@@ -36,6 +38,12 @@ const App = () => {
             </PrivateRoute>
           } />
 
+          <Route path='officerreport' element={
+            <PrivateRoute allowedRoles={['officer']}>
+              <OfficerReportPage />
+            </PrivateRoute>
+          } />
+
           <Route path='admnpg' element={
             <PrivateRoute allowedRoles={['admin']}>
               <AdminPg />
@@ -48,7 +56,7 @@ const App = () => {
             </PrivateRoute>
           } />
 
-          <Route path='board' element={
+          <Route path='clovestation' element={
             <PrivateRoute allowedRoles={['admin']}>
               <BoardManagement />
             </PrivateRoute>
@@ -66,8 +74,15 @@ const App = () => {
             </PrivateRoute>          
           }/>
 
-         
         </Route>
+
+        {/* Logout Route - Outside main layout */}
+        <Route path='/logout' element={
+          <PrivateRoute allowedRoles={['admin', 'officer']}>
+            <LogOut />
+          </PrivateRoute>
+        } />
+         
       </Routes>
     </Router>
   );

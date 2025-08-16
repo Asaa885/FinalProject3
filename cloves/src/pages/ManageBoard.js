@@ -2,41 +2,42 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const ManageBoard = () => {
-  const [boards, setBoards] = useState([]);
-  const [cloveFirms, setCloveFirms] = useState([]); // ✅ NEW
+  const [clovestations, setCloveStations] = useState([]);
+  // const [cloveFirms, setCloveFirms] = useState([]); // ✅ NEW
   const [formData, setFormData] = useState({
-    boardName: '',
+    stationName: '',
     location: '',
-    CloveFirm: '', // ✅ NEW
+    // CloveFirm: '', // ✅ NEW
   });
   const [editId, setEditId] = useState(null);
 
   const token = localStorage.getItem('accessToken');
+  const userRole = localStorage.getItem('role');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  const fetchBoards = async () => {
+  const fetchCloveStations = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/board/', { headers });
-      setBoards(res.data);
+      const res = await axios.get('http://127.0.0.1:8000/api/clovestation/', { headers });
+      setCloveStations(res.data);
     } catch (err) {
-      console.error('Error fetching boards:', err);
+      console.error('Error fetching CloveStations:', err);
     }
   };
 
-  const fetchCloveFirms = async () => { // ✅ NEW
-    try {
-      const res = await axios.get('http://127.0.0.1:8000/api/clovefirms/', { headers });
-      setCloveFirms(res.data);
-    } catch (err) {
-      console.error('Error fetching clove firms:', err);
-    }
-  };
+  // const fetchCloveFirms = async () => { // ✅ NEW
+  //   try {
+  //     const res = await axios.get('http://127.0.0.1:8000/api/clovefirms/', { headers });
+  //     // setCloveFirms(res.data);
+  //   } catch (err) {
+  //     console.error('Error fetching clove firms:', err);
+  //   }
+  // };
 
   useEffect(() => {
-    fetchBoards();
-    fetchCloveFirms(); // ✅ NEW
+    fetchCloveStations();
+    // fetchCloveFirms(); // ✅ NEW
   }, []);
 
   const handleChange = (e) => {
@@ -49,52 +50,52 @@ const ManageBoard = () => {
       const userId = localStorage.getItem("userId"); // <-- ensure umehifadhi userId
     const payload = {
       ...formData,
-      Officer: userId,
+      admin: userId,
     }
       if (editId) {
-        await axios.put(`http://127.0.0.1:8000/api/board/${editId}/`, payload, { headers });
+        await axios.put(`http://127.0.0.1:8000/api/clovestation/${editId}/`, payload, { headers });
 
       } else {
-       await axios.post('http://127.0.0.1:8000/api/board/', payload, { headers });
+       await axios.post('http://127.0.0.1:8000/api/clovestation/', payload, { headers });
 
       }
-      setFormData({ boardName: '', location: '', CloveFirm: '' }); // ✅ RESET clovefirm
+      setFormData({ stationName: '', location: '',  }); // ✅ RESET clovefirm
       setEditId(null);
-      fetchBoards();
+      fetchCloveStations();
     } catch (err) {
-      console.error('Error submitting board:', err);
+      console.error('Error submitting station:', err);
       console.log(err.response?.data);
     }
   };
 
-  const handleEdit = (board) => {
+  const handleEdit = (station) => {
     setFormData({
-      boardName: board.boardName,
-      location: board.location,
-      CloveFirm: board.CloveFirm || '', // ✅ include when editing
+      stationName: station.stationName,
+      location: station.location,
+      // CloveFirm: clovestations.CloveFirm || '', // ✅ include when editing
     });
-    setEditId(board.id);
+    setEditId(clovestations.id);
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/board/${id}/`, { headers });
-      fetchBoards();
+      await axios.delete(`http://127.0.0.1:8000/api/clovestation/${id}/`, { headers });
+      fetchCloveStations();
     } catch (err) {
-      console.error('Error deleting board:', err);
+      console.error('Error deleting station:', err);
     }
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">{editId ? 'Edit Board' : 'Add New Board'}</h2>
+      <h2 className="text-xl font-bold mb-4">{editId ? 'Edit Station' : 'Add New Station'}</h2>
       <form onSubmit={handleSubmit} className="mb-4 space-y-2">
         <input
           type="text"
-          name="boardName"
-          value={formData.boardName}
+          name="stationName"
+          value={formData.stationName}
           onChange={handleChange}
-          placeholder="Board Name"
+          placeholder="Station Name"
           className="border p-2 w-full"
           required
         />
@@ -107,56 +108,40 @@ const ManageBoard = () => {
           className="border p-2 w-full"
           required
         />
-        
-        {/* ✅ NEW: CloveFirm Dropdown */}
-        <select
-          name="CloveFirm"
-          value={formData.CloveFirm}
-          onChange={handleChange}
-          className="border p-2 w-full"
-          required
-        >
-          <option value="">Select Clove Firm</option>
-          {cloveFirms.map((firm) => (
-            <option key={firm.id} value={firm.id}>
-              {firm.name}
-            </option>
-          ))}
-        </select>
 
         <button
           type="submit"
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
-          {editId ? 'Update Board' : 'Add Board'}
+          {editId ? 'Update Station' : 'Add Station'}
         </button>
       </form>
 
-      <h2 className="text-lg font-semibold mb-2">All Boards</h2>
+      <h2 className="text-lg font-semibold mb-2">All Stations</h2>
       <table className="min-w-full border">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-2 py-1">ID</th>
-            <th className="border px-2 py-1">Board Name</th>
+            <th className="border px-2 py-1">Station Name</th>
             <th className="border px-2 py-1">Location</th>
             <th className="border px-2 py-1">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {boards.map((board) => (
-            <tr key={board.id}>
-              <td className="border px-2 py-1">{board.id}</td>
-              <td className="border px-2 py-1">{board.boardName}</td>
-              <td className="border px-2 py-1">{board.location}</td>
+          {clovestations.map((clovestation) => (
+            <tr key={clovestation.id}>
+              <td className="border px-2 py-1">{clovestation.id}</td>
+              <td className="border px-2 py-1">{clovestation.stationName}</td>
+              <td className="border px-2 py-1">{clovestation.location}</td>
               <td className="border px-2 py-1 space-x-2">
                 <button
-                  onClick={() => handleEdit(board)}
+                  onClick={() => handleEdit(clovestation)}
                   className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(board.id)}
+                  onClick={() => handleDelete(clovestation.id)}
                   className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                 >
                   Delete
@@ -164,9 +149,9 @@ const ManageBoard = () => {
               </td>
             </tr>
           ))}
-          {boards.length === 0 && (
+          {clovestations.length === 0 && (
             <tr>
-              <td colSpan="4" className="text-center py-2 text-gray-500">No boards found</td>
+              <td colSpan="4" className="text-center py-2 text-gray-500">No stations found</td>
             </tr>
           )}
         </tbody>

@@ -3,12 +3,13 @@ import axios from 'axios';
 
 const PaymentPage = () => {
   const [pamount, setPamount] = useState('');
-  const [paid_to, setPaid_to] = useState(null); // Changed from '' to null
-  const [farm, setFarm] = useState(null);       // Also initialize as null
+  const [paid_to, setPaid_to] = useState(null); // seller_name string or null
+  const [farm, setFarm] = useState(null);       // null since farm not in data
   const [transactionType, setTransactionType] = useState('rent');
   const [purchases, setPurchases] = useState([]);
   const [message, setMessage] = useState('');
   const token = localStorage.getItem('accessToken');
+  console.log('Token:', token);
 
   useEffect(() => {
     fetchPurchases();
@@ -19,6 +20,7 @@ const PaymentPage = () => {
       const response = await axios.get('http://127.0.0.1:8000/api/purchase/', {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
+      console.log(response.data);
       setPurchases(response.data);
     } catch (error) {
       console.error('Error fetching purchases:', error);
@@ -34,15 +36,15 @@ const PaymentPage = () => {
     }
     const purchase = purchases.find(p => p.id === purchaseId);
     if (purchase) {
-      setPaid_to(purchase.seller_id);
-      setFarm(purchase.farm ? purchase.farm.id : null);
+      setPaid_to(purchase.seller_id); 
+      setFarm(null); 
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!pamount || parseFloat(pamount) <= 0 || paid_to === null) {
+    if (!pamount || parseFloat(pamount) <= 0 || !paid_to) {
       setMessage('Amount and Paid To are required');
       return;
     }
@@ -50,8 +52,8 @@ const PaymentPage = () => {
     try {
       const paymentData = {
         pamount,
-        paid_to,
-        farm,
+        paid_to,  
+        farm,    
         transaction_type: transactionType,
       };
 
@@ -98,7 +100,7 @@ const PaymentPage = () => {
         <div className="mb-4">
           <label className="block font-medium mb-1">Select Purchase</label>
           <select
-            value={paid_to !== null ? purchases.find(p => p.seller_id === paid_to)?.id || '' : ''}
+            value={purchases.find(p => p.seller_id === paid_to)?.id || ''}
             onChange={handleSelectPurchase}
             className="w-full border rounded p-2"
             required
@@ -106,7 +108,7 @@ const PaymentPage = () => {
             <option value="">-- Select a Purchase --</option>
             {purchases.map(purchase => (
               <option key={purchase.id} value={purchase.id}>
-                Seller: {purchase.seller_type} ({purchase.seller_id}) - Grade: {purchase.grade} - Total: {purchase.total}
+                Seller: {purchase.seller_type} ({purchase.seller_name}) - Grade: {purchase.grade} - Total: {purchase.total}
               </option>
             ))}
           </select>

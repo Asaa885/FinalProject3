@@ -7,18 +7,20 @@ const TopNavBar = () => {
 
   const adminNavItems = [
     { name: 'Admin Dashboard', path: '/main/admndash' },
-    { name: 'Board Management', path: '/main/board' },
+    { name: 'Board Management', path: '/main/clovestation' },
     
     // { name: 'Admin page', path: '/main/admnpg' },
   ];
 
   const officerNavItems = [
     { name: 'Home', path: '/main/home' },
-    { name: 'Clove Purchase', path: '/main/purchase' },
-    { name: 'PaymentPage', path: '/main/payment' },
+    { name: 'Purchase Clove', path: '/main/purchase' },
+    { name: 'Payment', path: '/main/payment' },
+    { name: 'Generate Report', path: '/main/officerreport' },
   ];
 
   const sharedNavItems = [
+    { name: 'Logout', path: '/logout' },
     
   ];
 
